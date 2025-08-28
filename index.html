@@ -1,590 +1,560 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interstellar Trade Empire: Interactive Guide</title>
+    <title>Risk -n- Rialto: Interactive Economy Blueprint</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Cosmic Neutrals (Light Beige, Dark Slate, with Gold, Cyan, Rust, Green, Purple accents) -->
-    <!-- Application Structure Plan: A thematic, single-page scrolling application with a sticky navigation. The structure is designed for exploration, not linear reading. It's divided into: 1. Welcome, 2. Interactive Galaxy Explorer (to compare zones), 3. Visual Round Cycle (to understand gameplay flow), 4. Dynamic Economic Simulators (to interact with core math), and 5. Scoring Breakdown. This non-linear, thematic structure allows users to either get a quick overview or deep-dive into the mechanics that interest them most, which is more effective for a complex rulebook than a simple document conversion. -->
-    <!-- Visualization & Content Choices: Galaxy -> Goal:Compare -> Method:Interactive Cards + Donut Charts -> Interaction:Click-to-reveal -> Justification:Shows high-level info and allows deep dives. Round Cycle -> Goal:Organize -> Method:HTML/CSS flowchart -> Interaction:Click-to-reveal details -> Justification:Visualizes the core game loop. Economics -> Goal:Explain Relationships -> Method:Interactive Line/Bar Charts with sliders -> Interaction:User-driven simulation -> Justification:Makes abstract formulas tangible. Scoring -> Goal:Inform -> Method:Donut Chart -> Interaction:Hover-for-details -> Justification:Clearly shows point distribution. All charts use Chart.js on Canvas. -->
+    <!-- Chosen Palette: Warm Neutrals with Amber Accent -->
+    <!-- Application Structure Plan: A thematic, scrolling single-page application divided into the four core phases of the game: I. The Economic Engine, II. Pre-Journey Preparations, III. The Perilous Journey, and IV. The Rialto Market & Finale. This structure was chosen to guide the user through the game's narrative and mechanical progression logically. Navigation is handled by a sticky top bar that allows users to jump to any section. Key interactions include toggling between raw materials and crafted goods to see value changes, selecting specialists to view their effects, and simulating market supply changes to see dynamic price adjustments. This user flow mirrors the player's own journey, making the complex economic systems easy to understand step-by-step. -->
+    <!-- Visualization & Content Choices: 
+        - Economic Engine: Uses a dynamic bar chart (Chart.js) to compare the base value of raw materials vs. the "Crafting Value Add" (CVA) of intermediate goods. Goal: Compare. Interaction: User can select different recipes to update the chart, visually demonstrating the core risk/reward of crafting. Justification: A bar chart is the clearest way to show the value proposition of crafting.
+        - Specialists: Uses interactive cards (HTML/CSS/JS). Goal: Inform & Compare. Interaction: Clicking on a specialist's card highlights it and displays their unique abilities and cost. Justification: This provides a clean, organized way to compare the strategic options available during preparation.
+        - Threat Matrix: Uses a structured HTML table. Goal: Organize. Interaction: None, static informational display. Justification: A table is the most effective way to present this matrix of threats, consequences, and mitigations clearly.
+        - Rialto Market: Uses an interactive line chart (Chart.js) to simulate the dynamic pricing model. Goal: Change. Interaction: A slider or buttons allow the user to increase the supply of a product, which dynamically updates the chart to show the corresponding price drop. Justification: A line chart effectively visualizes the relationship between supply and price, making the core market mechanic tangible.
+        - Venetian Masterpieces: Uses an interactive diagram built with HTML/CSS. Goal: Organize & Show Relationships. Interaction: Hovering over a Masterpiece reveals the multiple, disparate components required from different game phases. Justification: This visually reinforces the "Ugli Orange" principle, showing why player negotiation is essential.
+    -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #F5F5DC;
-            color: #2F4F4F;
+            background-color: #FDFBF8;
+            color: #402E32;
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+        }
+        .nav-link.active {
+            color: #D97706;
+            border-bottom-color: #D97706;
+        }
+        .nav-link:hover {
+            color: #D97706;
+        }
+        .card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
         .chart-container {
             position: relative;
             width: 100%;
-            max-width: 600px;
+            max-width: 700px;
             margin-left: auto;
             margin-right: auto;
             height: 350px;
-            max-height: 400px;
+            max-height: 40vh;
         }
         @media (min-width: 768px) {
             .chart-container {
                 height: 400px;
             }
         }
-        .zone-card {
-            transition: all 0.3s ease-in-out;
+        .btn-primary {
+            background-color: #D97706;
+            color: #FFFFFF;
+            transition: background-color 0.3s;
         }
-        .zone-card.active {
-            transform: scale(1.02);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        .btn-primary:hover {
+            background-color: #B45309;
         }
-        .nav-link {
-            transition: color 0.2s;
+        .btn-secondary {
+            background-color: #EFEBE9;
+            color: #402E32;
+            transition: background-color 0.3s;
         }
-        .nav-link:hover {
-            color: #A0522D;
+        .btn-secondary.active {
+            background-color: #D97706;
+            color: #FFFFFF;
         }
-        .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background: #A0522D;
-            cursor: pointer;
-            border-radius: 50%;
-        }
-        .slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background: #A0522D;
-            cursor: pointer;
-            border-radius: 50%;
+        .section-title {
+            border-bottom: 2px solid #D97706;
+            padding-bottom: 0.5rem;
         }
     </style>
 </head>
 <body class="antialiased">
 
-    <header class="bg-stone-200/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+    <!-- Header & Navigation -->
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <h1 class="text-xl md:text-2xl font-bold text-slate-800">Interstellar Trade Empire</h1>
+            <h1 class="text-2xl font-bold text-amber-700">Risk -n- Rialto</h1>
             <div class="hidden md:flex space-x-8">
-                <a href="#galaxy" class="nav-link font-medium">The Galaxy</a>
-                <a href="#round" class="nav-link font-medium">The Round</a>
-                <a href="#economy" class="nav-link font-medium">Economy</a>
-                <a href="#scoring" class="nav-link font-medium">Scoring</a>
+                <a href="#engine" class="nav-link text-gray-600 border-b-2 border-transparent pb-1">Economic Engine</a>
+                <a href="#preparation" class="nav-link text-gray-600 border-b-2 border-transparent pb-1">Preparation</a>
+                <a href="#journey" class="nav-link text-gray-600 border-b-2 border-transparent pb-1">The Journey</a>
+                <a href="#market" class="nav-link text-gray-600 border-b-2 border-transparent pb-1">Rialto Market</a>
+            </div>
+            <div class="md:hidden">
+                <select id="mobile-nav" class="bg-white border border-gray-300 rounded-md p-2">
+                    <option value="#engine">Economic Engine</option>
+                    <option value="#preparation">Preparation</option>
+                    <option value="#journey">The Journey</option>
+                    <option value="#market">Rialto Market</option>
+                </select>
             </div>
         </nav>
     </header>
 
     <main class="container mx-auto px-6 py-12">
-        
-        <section id="welcome" class="text-center mb-20">
-            <h2 class="text-4xl font-bold mb-4 text-slate-900">A Game of Algorithmic Economics</h2>
-            <p class="max-w-3xl mx-auto text-lg text-slate-700">
-                Welcome to the interactive guide for *Interstellar Trade Empire*. This application translates the complex rules of the game into a dynamic, explorable experience. Here, you can dissect the galactic economy, simulate market forces, and understand the strategic phases of each game round. Prepare to engage in a battle of wits where the most powerful tools are not lasers or shields, but algorithms, financial models, and pure logic.
+
+        <!-- Introduction Section -->
+        <section id="intro" class="text-center mb-20">
+            <h2 class="text-4xl font-bold mb-4">An Interactive Blueprint of the Game Economy</h2>
+            <p class="max-w-3xl mx-auto text-lg text-gray-700">
+                This dashboard provides an interactive exploration of the core systems powering "Risk -n- Rialto". Navigate through the game's phases to understand the strategic decisions, economic principles, and risk management mechanics that define the player experience.
             </p>
         </section>
 
-        <section id="galaxy" class="mb-20">
-            <h2 class="text-3xl font-bold text-center mb-2 text-slate-900">Explore the Five Zones</h2>
-            <p class="text-center text-lg text-slate-700 mb-10">The galaxy is divided into five distinct economic zones, each with a unique currency, philosophy, and set of valuable goods. Click on a zone to learn about its role in the interstellar supply chain and see the starting wallet for a team from that region.</p>
+        <!-- Section 1: The Engine of Commerce -->
+        <section id="engine" class="mb-20 scroll-mt-24">
+            <h3 class="text-3xl font-bold mb-6 section-title">I. The Engine of Commerce</h3>
+            <p class="text-gray-700 mb-8 max-w-4xl">
+                The foundation of the game's economy is the transformation of low-value, high-resilience **Raw Materials** into high-value, low-resilience **Intermediate Goods**. This creates the central risk-reward proposition. The chart below visualizes this "Crafting Value Add" (CVA) – the potential profit earned for taking the risk of crafting and transporting a finished good.
+            </p>
             
-            <div id="zone-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            </div>
-
-            <div id="zone-details-container" class="mt-12"></div>
-        </section>
-
-        <section id="round" class="mb-20">
-            <h2 class="text-3xl font-bold text-center mb-2 text-slate-900">The Anatomy of a Game Round</h2>
-            <p class="text-center text-lg text-slate-700 mb-12">Each game round is a sequence of distinct phases, presenting unique mathematical and strategic challenges. Click each phase to understand its objective, the underlying model, and the actions you'll take.</p>
-            <div id="round-flow" class="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-0">
-            </div>
-            <div id="phase-details-container" class="mt-10 p-8 bg-white/50 rounded-xl shadow-lg min-h-[200px]">
-            </div>
-        </section>
-
-        <section id="economy" class="mb-20">
-            <h2 class="text-3xl font-bold text-center mb-2 text-slate-900">The Economic Engine</h2>
-            <p class="text-center text-lg text-slate-700 mb-12">The game's economy is driven by two core mathematical models. Interact with the simulators below to see how player actions create persistent trends and influence the entire galactic market.</p>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
-                <div class="bg-white/50 p-6 rounded-xl shadow-lg">
-                    <h3 class="text-2xl font-bold mb-2 text-center">Commodity Price Simulator</h3>
-                    <p class="text-center mb-4">See how supply and demand affect a commodity's price over time. The model has "memory," so a price crash in one round has lasting effects. Adjust the sliders to simulate market conditions.</p>
-                    <div class="chart-container mx-auto">
-                        <canvas id="priceChart"></canvas>
-                    </div>
-                    <div class="mt-6 space-y-4">
-                        <div>
-                            <label for="local-supply" class="block font-medium">Local Supply at Hub:</label>
-                            <input type="range" id="local-supply" min="50" max="500" value="150" class="slider w-full h-2 bg-stone-300 rounded-lg appearance-none cursor-pointer">
-                            <span id="local-supply-value" class="text-sm font-semibold">150 units</span>
-                        </div>
-                        <div>
-                            <label for="global-supply" class="block font-medium">Global Supply (Other Hubs):</label>
-                            <input type="range" id="global-supply" min="200" max="2000" value="800" class="slider w-full h-2 bg-stone-300 rounded-lg appearance-none cursor-pointer">
-                            <span id="global-supply-value" class="text-sm font-semibold">800 units</span>
-                        </div>
-                    </div>
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <div class="flex flex-wrap justify-center gap-2 mb-6">
+                    <button class="recipe-btn btn-secondary active px-4 py-2 rounded-md text-sm" data-recipe="0">Recipe A: Dyed Silk</button>
+                    <button class="recipe-btn btn-secondary px-4 py-2 rounded-md text-sm" data-recipe="1">Recipe B: Carved Jade</button>
+                    <button class="recipe-btn btn-secondary px-4 py-2 rounded-md text-sm" data-recipe="2">Recipe C: Spiced Wine</button>
+                    <button class="recipe-btn btn-secondary px-4 py-2 rounded-md text-sm" data-recipe="3">Recipe D: Illustrated Scroll</button>
                 </div>
-
-                <div class="bg-white/50 p-6 rounded-xl shadow-lg">
-                    <h3 class="text-2xl font-bold mb-2 text-center">Currency Exchange Simulator</h3>
-                    <p class="text-center mb-4">Exchange rates are based on the "Foreign Holdings Model." A currency's value increases when more of it is held by teams outside its home zone. Simulate a trade to see how it impacts the exchange rate.</p>
-                     <div class="chart-container mx-auto">
-                        <canvas id="exchangeChart"></canvas>
-                    </div>
-                    <div class="mt-6 text-center">
-                        <p class="mb-2 font-medium">Current Rate: <span id="exchange-rate-display" class="font-bold">1.00 CRED / ING</span></p>
-                        <button id="simulate-trade-btn" class="bg-slate-800 text-white font-bold py-2 px-6 rounded-lg hover:bg-slate-700 transition-colors">Simulate Teams Buying 200 ING</button>
-                        <button id="reset-trade-btn" class="bg-stone-400 text-slate-800 font-bold py-2 px-6 rounded-lg hover:bg-stone-500 transition-colors ml-2">Reset</button>
-                    </div>
+                <div id="cva-details" class="text-center mb-4 p-4 bg-amber-50 rounded-md">
+                    <!-- Details will be populated by JS -->
+                </div>
+                <div class="chart-container">
+                    <canvas id="cvaChart"></canvas>
                 </div>
             </div>
         </section>
 
-        <section id="scoring">
-            <h2 class="text-3xl font-bold text-center mb-2 text-slate-900">Victory and Scoring</h2>
-            <p class="text-center text-lg text-slate-700 mb-10">The winning team is the one with the highest cumulative point total. The scoring system rewards consistently optimal decision-making across all facets of the game. Hover over a category to see its maximum point value.</p>
-            <div class="chart-container mx-auto">
-                <canvas id="scoringChart"></canvas>
+        <!-- Section 2: Pre-Journey Preparations -->
+        <section id="preparation" class="mb-20 scroll-mt-24">
+            <h3 class="text-3xl font-bold mb-6 section-title">II. Pre-Journey Preparations</h3>
+            <p class="text-gray-700 mb-8 max-w-4xl">
+                Success is seeded in foresight. Before the journey begins, players must make critical investments. Beyond acquiring a portfolio of resources, players can hire **Specialists** to mitigate the specific dangers of the road ahead. Each specialist provides a unique and powerful advantage, but their cost demands a significant portion of a player's starting capital.
+            </p>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="specialist-card card bg-white p-6 rounded-lg shadow-lg text-center" data-specialist="guide">
+                    <div class="text-4xl mb-4">🗺️</div>
+                    <h4 class="text-xl font-semibold mb-2">The Guide</h4>
+                    <p class="text-gray-600 text-sm">Expert in navigating treacherous landscapes. Mitigates terrain-based calamities like Sandstorms or Rockslides.</p>
+                </div>
+                <div class="specialist-card card bg-white p-6 rounded-lg shadow-lg text-center" data-specialist="guard">
+                    <div class="text-4xl mb-4">🛡️</div>
+                    <h4 class="text-xl font-semibold mb-2">The Guard</h4>
+                    <p class="text-gray-600 text-sm">Seasoned protector of the caravan. Provides a significant advantage during bandit-themed puzzles.</p>
+                </div>
+                <div class="specialist-card card bg-white p-6 rounded-lg shadow-lg text-center" data-specialist="scholar">
+                    <div class="text-4xl mb-4">📜</div>
+                    <h4 class="text-xl font-semibold mb-2">The Scholar</h4>
+                    <p class="text-gray-600 text-sm">Master of lore and logic. Gains an advantage on any logic-based or linguistic puzzles.</p>
+                </div>
+                <div class="specialist-card card bg-white p-6 rounded-lg shadow-lg text-center" data-specialist="physician">
+                    <div class="text-4xl mb-4">⚕️</div>
+                    <h4 class="text-xl font-semibold mb-2">The Physician</h4>
+                    <p class="text-gray-600 text-sm">Expert in medicine. Can prevent the loss of other specialists or protect cargo from disease.</p>
+                </div>
+            </div>
+             <div id="specialist-details" class="mt-8 p-6 bg-amber-50 rounded-lg text-center min-h-[80px] flex items-center justify-center">
+                <p class="text-gray-700">Click on a specialist to learn more about their abilities and cost.</p>
+            </div>
+        </section>
+
+        <!-- Section 3: The Perilous Journey -->
+        <section id="journey" class="mb-20 scroll-mt-24">
+            <h3 class="text-3xl font-bold mb-6 section-title">III. The Perilous Journey</h3>
+            <p class="text-gray-700 mb-8 max-w-4xl">
+                The journey is an unpredictable gauntlet of challenges. A player's success or failure in overcoming these obstacles has direct and lasting economic consequences. The **Threat Matrix** below outlines the types of calamities a caravan might face, the potential losses, and which specialists are best equipped to handle them. Failure often results in goods becoming "Damaged," halving their value until repaired at a costly Caravanserai.
+            </p>
+            <div class="bg-white p-2 rounded-lg shadow-lg overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-amber-100">
+                        <tr>
+                            <th class="p-4 font-semibold">Terrain Type</th>
+                            <th class="p-4 font-semibold">Calamity / Puzzle Theme</th>
+                            <th class="p-4 font-semibold">Potential Loss (on Failure)</th>
+                            <th class="p-4 font-semibold">Mitigated By</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-4">Desert</td>
+                            <td class="p-4">Sandstorm, Lost Oasis</td>
+                            <td class="p-4">Damage to Good; Loss of money</td>
+                            <td class="p-4 font-medium text-amber-800">Guide</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-4">Mountains</td>
+                            <td class="p-4">Blizzard, Rockslide</td>
+                            <td class="p-4">Damage to Good; Caravan delayed</td>
+                            <td class="p-4 font-medium text-amber-800">Guide</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-4">Forest / Hills</td>
+                            <td class="p-4">Bandit Ambush (Logic Puzzle)</td>
+                            <td class="p-4">Loss of money or Raw Material</td>
+                            <td class="p-4 font-medium text-amber-800">Guard</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-4">Steppe</td>
+                            <td class="p-4">Nomadic Raiders (Riddle)</td>
+                            <td class="p-4">Loss of money or Raw Material</td>
+                            <td class="p-4 font-medium text-amber-800">Guard, Scholar</td>
+                        </tr>
+                         <tr class="hover:bg-gray-50">
+                            <td class="p-4">Plague Territory</td>
+                            <td class="p-4">Disease Outbreak</td>
+                            <td class="p-4">Damage to Good; Loss of a Specialist</td>
+                            <td class="p-4 font-medium text-amber-800">Physician</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-4">River Crossing</td>
+                            <td class="p-4">Linguistic Problem (Riddle)</td>
+                            <td class="p-4">Caravan delayed; Loss of money</td>
+                            <td class="p-4 font-medium text-amber-800">Scholar</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 4: The Rialto Market -->
+        <section id="market" class="mb-20 scroll-mt-24">
+            <h3 class="text-3xl font-bold mb-6 section-title">IV. The Rialto Market & Grand Finale</h3>
+            <p class="text-gray-700 mb-8 max-w-4xl">
+                The game culminates in Venice's bustling Rialto Market. Here, the core economic principle comes to life: **the more of a specific good supplied to the market, the lower its price becomes.** This dynamic pricing model creates a tense, player-driven environment. Use the slider below to simulate how increasing the supply of a product affects its market value.
+            </p>
+            <div class="bg-white p-6 rounded-lg shadow-lg mb-12">
+                <div class="mb-6">
+                    <label for="supply-slider" class="block font-medium mb-2">Simulate Market Supply for "Dyed Silk": <span id="supply-value" class="font-bold text-amber-700">1</span> unit(s)</label>
+                    <input type="range" id="supply-slider" min="1" max="10" value="1" class="w-full">
+                </div>
+                <div class="chart-container">
+                    <canvas id="marketChart"></canvas>
+                </div>
+            </div>
+
+            <h4 class="text-2xl font-bold mb-4">The Grand Finale: Crafting Venetian Masterpieces</h4>
+            <p class="text-gray-700 mb-8 max-w-4xl">
+                The ultimate path to victory lies in crafting unique Venetian Masterpieces. Their recipes are designed to be impossible for a single player to complete alone, forcing negotiation and trade. This "Ugli Orange" design principle ensures the endgame is a climactic social and economic showdown. Hover over a masterpiece below to see its complex requirements.
+            </p>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="card bg-white p-6 rounded-lg shadow-lg relative overflow-hidden group">
+                    <h5 class="text-xl font-semibold text-center">Murano Glass Mirror</h5>
+                    <div class="absolute inset-0 bg-amber-800/90 text-white p-6 flex flex-col justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <h6 class="font-bold mb-2">Requires:</h6>
+                        <ul class="text-sm list-disc list-inside text-left">
+                            <li><span class="font-semibold">Intermediate Good:</span> Polished Metalware</li>
+                            <li><span class="font-semibold">Journey Resource:</span> Quartz Sand</li>
+                            <li><span class="font-semibold">Venetian Component:</span> Glassmakers' Formula</li>
+                        </ul>
+                        <div class="mt-4 text-lg font-bold">Value: 1500</div>
+                    </div>
+                </div>
+                 <div class="card bg-white p-6 rounded-lg shadow-lg relative overflow-hidden group">
+                    <h5 class="text-xl font-semibold text-center">Damask Velvet Gown</h5>
+                    <div class="absolute inset-0 bg-amber-800/90 text-white p-6 flex flex-col justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <h6 class="font-bold mb-2">Requires:</h6>
+                        <ul class="text-sm list-disc list-inside text-left">
+                            <li><span class="font-semibold">Intermediate Good:</span> Dyed Silk (x2)</li>
+                            <li><span class="font-semibold">Journey Resource:</span> Rare Dyes</li>
+                            <li><span class="font-semibold">Venetian Component:</span> Weavers' Pattern</li>
+                        </ul>
+                        <div class="mt-4 text-lg font-bold">Value: 1300</div>
+                    </div>
+                </div>
+                 <div class="card bg-white p-6 rounded-lg shadow-lg relative overflow-hidden group">
+                    <h5 class="text-xl font-semibold text-center">Gilt Leather Tome</h5>
+                    <div class="absolute inset-0 bg-amber-800/90 text-white p-6 flex flex-col justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <h6 class="font-bold mb-2">Requires:</h6>
+                        <ul class="text-sm list-disc list-inside text-left">
+                            <li><span class="font-semibold">Intermediate Good:</span> Bound Paper</li>
+                            <li><span class="font-semibold">Journey Resource:</span> Gold Dust</li>
+                            <li><span class="font-semibold">Venetian Component:</span> Bookbinding Secret</li>
+                        </ul>
+                        <div class="mt-4 text-lg font-bold">Value: 1100</div>
+                    </div>
+                </div>
             </div>
         </section>
 
     </main>
-
-    <footer class="bg-stone-200 mt-20">
-        <div class="container mx-auto px-6 py-4 text-center text-slate-600">
-            <p>&copy; 2025 Interstellar Trade Empire. A game of logic, math, and finance.</p>
+    
+    <footer class="bg-gray-800 text-white py-6">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2025 Risk -n- Rialto Game Design. All systems conceptual.</p>
         </div>
     </footer>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- DATA ---
+            const rawMaterials = {
+                silk: { name: 'Raw Silk', value: 4 },
+                spices: { name: 'Spices', value: 3 },
+                jade: { name: 'Jade', value: 5 },
+                paper: { name: 'Paper & Pigments', value: 2 },
+                metals: { name: 'Precious Metals', value: 6 }
+            };
 
-    const zoneData = {
-        scs: { 
-            name: "Sol-Core Syndicate", 
-            acronym: "SCS",
-            currency: "Sol-Credit (CRED)", 
-            philosophy: "Mercantilist Capitalism", 
-            goods: "Manufactures, Heavy Machinery",
-            profile: "The industrial heartland. The SCS is defined by its massive production capacity but is resource-poor, creating a systemic dependency on raw materials from other zones. Its stable, widely-trusted CRED is the galaxy's reserve currency.",
-            color: "#FFD700",
-            wallet: [60, 10, 10, 10, 10]
-        },
-        ct: { 
-            name: "Cygnan Technocracy",
-            acronym: "CT",
-            currency: "Quanta (QNT)", 
-            philosophy: "State-Controlled R&D", 
-            goods: "Advanced Polymers, Quantum Processors",
-            profile: "A society of scientists and engineers. The CT produces low-volume, high-value technological goods that require immense capital investment. The value of its digital currency, the QNT, is algorithmically tied to technological progress.",
-            color: "#00FFFF",
-            wallet: [10, 60, 10, 10, 10]
-        },
-        orc: { 
-            name: "Outer Rim Collective",
-            acronym: "ORC",
-            currency: "Raw Ingot (ING)", 
-            philosophy: "Libertarian Free-Market", 
-            goods: "Rare Metals, Hydrocarbons, Radioactives",
-            profile: "A frontier confederation of miners and prospectors. The ORC is the galaxy's sole source of fundamental raw materials. Its currency, the ING, is commodity-backed, making its value tangible but highly volatile.",
-            color: "#CD7F32",
-            wallet: [10, 10, 60, 10, 10]
-        },
-        eb: { 
-            name: "Elysian Bioprospectors",
-            acronym: "EB",
-            currency: "Bio-Lira (LIRA)", 
-            philosophy: "Sustainable Biotechnology", 
-            goods: "Spice, Xeno-Proteins, Gene-Mods",
-            profile: "A collection of lush, bio-engineered worlds. The EB produces unique organic goods, some with special properties like spoilage. Its currency, the LIRA, is linked to ecological metrics, creating a unique economic rhythm.",
-            color: "#32CD32",
-            wallet: [10, 10, 10, 60, 10]
-        },
-        vnh: { 
-            name: "Void-Nomad Hegemony",
-            acronym: "VNH",
-            currency: "Void-Mark (MARK)", 
-            philosophy: "Monopolistic Service Control", 
-            goods: "(None - Services Only)",
-            profile: "An enigmatic culture of space-farers who control the interstellar trade lanes. The VNH produces no physical goods but sells essential logistical services—faster routes, risk reduction—exclusively for their unique currency, the MARK.",
-            color: "#9370DB",
-            wallet: [10, 10, 10, 10, 60]
-        }
-    };
+            const recipes = [
+                {
+                    name: "Recipe A: Dyed Silk",
+                    components: { silk: 3, spices: 5, paper: 2 },
+                    salePrice: 50
+                },
+                {
+                    name: "Recipe B: Carved Jade",
+                    components: { jade: 4, metals: 2 },
+                    salePrice: 60
+                },
+                {
+                    name: "Recipe C: Spiced Wine",
+                    components: { spices: 10, paper: 1 },
+                    salePrice: 45
+                },
+                {
+                    name: "Recipe D: Illustrated Scroll",
+                    components: { paper: 8, silk: 2, metals: 1 },
+                    salePrice: 55
+                }
+            ];
+            
+            const specialists = {
+                guide: { name: "The Guide", cost: 60, description: "Allows you to ignore or reduce the penalty of one terrain-based Calamity. Essential for safely traversing dangerous mountains or deserts." },
+                guard: { name: "The Guard", cost: 50, description: "Provides a significant advantage during bandit-themed puzzles, potentially offering a free hint, a re-attempt, or reduced losses on failure." },
+                scholar: { name: "The Scholar", cost: 40, description: "Grants an advantage on any logic-based or linguistic puzzle, making it easier to overcome intellectual challenges and gain their rewards." },
+                physician: { name: "The Physician", cost: 45, description: "Can prevent the loss of another Specialist or protect cargo from being damaged during a disease-related Calamity, acting as crucial insurance for your expedition." }
+            };
 
-    const phaseData = {
-        production: {
-            name: "Phase 1: Production & Allocation",
-            objective: "To determine the optimal mix of goods to produce that will maximize the potential profit of your caravan, given your planet's production constraints.",
-            model: "The 0/1 Knapsack Problem. This is a classic resource allocation challenge where you must choose a set of items (goods) with given values and weights (production cost) to maximize total value within a limited capacity (your planet's production cap). The GM validates your solution against one found using a Dynamic Programming algorithm.",
-            actions: "Review producible goods, optionally purchase infrastructure upgrades, and submit your 'Production Manifest' declaring the quantity of each good to produce."
-        },
-        route: {
-            name: "Phase 2: Route Planning",
-            objective: "To select the single most profitable trade route from your home planet to a destination Hub, balancing travel costs, time, and risk.",
-            model: "Shortest Path on a Weighted Graph. The galaxy is a graph where planets are nodes and trade lanes are edges. Each edge has a 'weight' calculated from its cost, time, and risk. Your task is to find the path that minimizes this total weight. The GM uses Dijkstra's Algorithm to find the optimal path for scoring.",
-            actions: "Declare your cargo, analyze the galactic map to calculate route weights, and submit your 'Route Plan' for a single, continuous path to a destination."
-        },
-        exchange: {
-            name: "Phase 3: Galactic Exchange",
-            objective: "To trade currencies to finance future actions, hedge against unfavorable exchange rate shifts, or speculate on market trends.",
-            model: "Sealed Bid Currency Auction. All teams secretly and simultaneously submit their trade orders. All transactions are resolved at the same time using the exchange rates announced at the start of the phase. This prevents players with faster reaction times from gaining an unfair advantage.",
-            actions: "Submit a sealed 'Exchange Order' to the GM, specifying which currencies to sell and which to buy. A 2% transaction fee is applied to all trades."
-        },
-        guild: {
-            name: "Phase 4: Guild Action",
-            objective: "To establish a Guild on a non-home planet, granting a permanent +10% sales bonus for that planet's native goods. This is a contest of pure logic.",
-            model: "Deductive Logic Puzzle. To establish or challenge a Guild, a team must solve a unique, sealed logic puzzle. If multiple teams target the same planet, the winner is determined by a score based on correctness, speed of solving, and an optional currency bid.",
-            actions: "Declare a target planet, pay the fee in that planet's local currency, and solve the provided logic puzzle within the time limit."
-        },
-        market: {
-            name: "Phase 5: Market & Event Resolution",
-            objective: "To resolve all economic activity for the round, calculate profits, and update the game state. This phase is managed entirely by the GM.",
-            model: "Algorithmic Resolution Sequence. The GM reveals the Galactic Event, aggregates all supply from arriving caravans, calculates new prices using the Multi-Factor Pricing Formula, pays teams in local currencies, and finally announces the new exchange rates for the next round.",
-            actions: "This is a GM-managed phase. Players observe the outcomes of their decisions and prepare for the next round."
-        }
-    };
+            // --- CVA Chart ---
+            const cvaCtx = document.getElementById('cvaChart').getContext('2d');
+            let cvaChart;
 
-    const scoringData = {
-        labels: ['Economic Forecasting', 'Guild Success', 'Production Optimality', 'Route Optimality', 'Portfolio Growth', 'Strategic Milestones'],
-        data: [25, 20, 20, 15, 10, 10]
-    };
-    
-    let activeZone = null;
-    let zoneChart = null;
-    let priceChart = null;
-    let exchangeChart = null;
+            function calculateCVA(recipe) {
+                const cost = Object.entries(recipe.components).reduce((acc, [key, quantity]) => {
+                    return acc + (rawMaterials[key].value * quantity);
+                }, 0);
+                const cva = recipe.salePrice - cost;
+                return { cost, cva, salePrice: recipe.salePrice };
+            }
 
-    function initGalaxy() {
-        const grid = document.getElementById('zone-grid');
-        Object.keys(zoneData).forEach(key => {
-            const zone = zoneData[key];
-            const card = document.createElement('div');
-            card.className = 'zone-card bg-white/50 p-6 rounded-xl shadow-lg cursor-pointer hover:shadow-xl';
-            card.dataset.zone = key;
-            card.innerHTML = `
-                <div class="flex items-center mb-4">
-                    <div class="w-4 h-4 rounded-full mr-3" style="background-color: ${zone.color};"></div>
-                    <h3 class="text-xl font-bold">${zone.name}</h3>
-                </div>
-                <p class="text-slate-600 font-medium">${zone.philosophy}</p>
-            `;
-            card.addEventListener('click', () => selectZone(key));
-            grid.appendChild(card);
-        });
-        selectZone('scs');
-    }
+            function updateCVADetails(recipeIndex) {
+                const recipe = recipes[recipeIndex];
+                const { cost, cva } = calculateCVA(recipe);
+                const detailsEl = document.getElementById('cva-details');
+                const componentStrings = Object.entries(recipe.components).map(([key, quantity]) => {
+                    return `${quantity} ${rawMaterials[key].name}`;
+                });
+                detailsEl.innerHTML = `
+                    <p class="font-semibold">${recipe.name}</p>
+                    <p class="text-sm text-gray-600">Requires: ${componentStrings.join(', ')}</p>
+                    <p class="text-sm text-gray-600">Total Raw Material Cost: <span class="font-bold">${cost}</span> | Sale Price: <span class="font-bold">${recipe.salePrice}</span> | CVA: <span class="font-bold text-green-600">${cva}</span></p>
+                `;
+            }
 
-    function selectZone(zoneKey) {
-        if (activeZone === zoneKey) return;
-        activeZone = zoneKey;
+            function renderCVAChart(recipeIndex) {
+                const recipe = recipes[recipeIndex];
+                const { cost, cva } = calculateCVA(recipe);
 
-        document.querySelectorAll('.zone-card').forEach(card => {
-            card.classList.toggle('active', card.dataset.zone === zoneKey);
-        });
+                if (cvaChart) {
+                    cvaChart.destroy();
+                }
 
-        const zone = zoneData[zoneKey];
-        const detailsContainer = document.getElementById('zone-details-container');
-        detailsContainer.innerHTML = `
-            <div class="bg-white/50 p-8 rounded-xl shadow-xl grid grid-cols-1 md:grid-cols-5 gap-8 items-center">
-                <div class="md:col-span-3">
-                    <h3 class="text-2xl font-bold mb-2" style="color: ${zone.color};">${zone.acronym}: ${zone.name}</h3>
-                    <p class="font-semibold text-lg mb-4">${zone.philosophy}</p>
-                    <p class="mb-4">${zone.profile}</p>
-                    <p><span class="font-bold">Primary Goods:</span> ${zone.goods}</p>
-                    <p><span class="font-bold">Currency:</span> ${zone.currency}</p>
-                </div>
-                <div class="md:col-span-2">
-                    <h4 class="text-center font-semibold mb-2">Starting Wallet for ${zone.acronym} Team</h4>
-                    <div class="chart-container !h-64 !max-h-64 mx-auto">
-                        <canvas id="zoneWalletChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        `;
-        renderZoneChart(zone);
-    }
-
-    function renderZoneChart(zone) {
-        const ctx = document.getElementById('zoneWalletChart').getContext('2d');
-        if(zoneChart) {
-            zoneChart.destroy();
-        }
-        zoneChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['SCS', 'CT', 'ORC', 'EB', 'VNH'],
-                datasets: [{
-                    label: 'Starting Wallet',
-                    data: zone.wallet,
-                    backgroundColor: Object.values(zoneData).map(z => z.color),
-                    borderColor: '#F5F5DC',
-                    borderWidth: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'right',
+                cvaChart = new Chart(cvaCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Raw Material Cost', 'Crafting Value Add (Profit)'],
+                        datasets: [{
+                            label: recipe.name,
+                            data: [cost, cva],
+                            backgroundColor: ['#FBBF24', '#16A34A'],
+                            borderColor: ['#F59E0B', '#15803D'],
+                            borderWidth: 1
+                        }]
                     },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return `${context.label}: ${context.raw}%`;
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        plugins: {
+                            legend: { display: false },
+                            title: {
+                                display: true,
+                                text: 'Value Breakdown: Cost vs. Profit'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: ${context.raw} units`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                stacked: true,
+                                title: { display: true, text: 'Monetary Value' }
+                            },
+                            y: {
+                                stacked: true
                             }
                         }
                     }
-                }
-            }
-        });
-    }
-
-    function initRoundFlow() {
-        const flowContainer = document.getElementById('round-flow');
-        const phaseDetailsContainer = document.getElementById('phase-details-container');
-        let activePhase = null;
-
-        Object.keys(phaseData).forEach((key, index) => {
-            const phase = phaseData[key];
-            const step = document.createElement('div');
-            step.className = 'flex items-center cursor-pointer p-2';
-            step.dataset.phase = key;
-            
-            step.innerHTML = `
-                <div class="phase-node w-24 h-24 md:w-28 md:h-28 flex items-center justify-center text-center p-2 rounded-full font-bold text-sm bg-white shadow-md transition-all duration-300">
-                    ${phase.name.split(':')[0]}<br/>${phase.name.split(':')[1]}
-                </div>
-            `;
-            
-            if (index < Object.keys(phaseData).length - 1) {
-                const arrow = document.createElement('div');
-                arrow.className = 'text-3xl font-light text-slate-500 mx-2 md:block hidden';
-                arrow.innerHTML = `&rarr;`;
-                const downArrow = document.createElement('div');
-                downArrow.className = 'text-3xl font-light text-slate-500 my-2 md:hidden block';
-                downArrow.innerHTML = `&darr;`;
-                flowContainer.appendChild(step);
-                flowContainer.appendChild(arrow);
-                flowContainer.appendChild(downArrow);
-            } else {
-                flowContainer.appendChild(step);
-            }
-
-            step.addEventListener('click', () => {
-                if (activePhase === key) return;
-                activePhase = key;
-
-                document.querySelectorAll('.phase-node').forEach(node => {
-                    const isSelected = node.parentElement.dataset.phase === key;
-                    node.classList.toggle('bg-slate-800', isSelected);
-                    node.classList.toggle('text-white', isSelected);
-                    node.classList.toggle('scale-110', isSelected);
-                    node.classList.toggle('bg-white', !isSelected);
-                    node.classList.toggle('text-slate-800', !isSelected);
                 });
+                updateCVADetails(recipeIndex);
+            }
 
-                phaseDetailsContainer.innerHTML = `
-                    <h3 class="text-2xl font-bold mb-3">${phase.name}</h3>
-                    <p class="font-semibold mb-2">Objective:</p>
-                    <p class="mb-4">${phase.objective}</p>
-                    <p class="font-semibold mb-2">Mathematical Model:</p>
-                    <p class="mb-4">${phase.model}</p>
-                    <p class="font-semibold mb-2">Player Actions:</p>
-                    <p>${phase.actions}</p>
-                `;
+            document.querySelectorAll('.recipe-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.recipe-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    renderCVAChart(parseInt(e.target.dataset.recipe));
+                });
             });
-        });
-        
-        flowContainer.querySelector('[data-phase="production"]').click();
-    }
 
-    function initPriceSimulator() {
-        const ctx = document.getElementById('priceChart').getContext('2d');
-        const localSupplySlider = document.getElementById('local-supply');
-        const globalSupplySlider = document.getElementById('global-supply');
-        const localSupplyValue = document.getElementById('local-supply-value');
-        const globalSupplyValue = document.getElementById('global-supply-value');
-        
-        const config = {
-            type: 'line',
-            data: {
-                labels: ['Round 0', 'Round 1', 'Round 2', 'Round 3', 'Round 4', 'Round 5'],
-                datasets: [{
-                    label: 'Commodity Price',
-                    borderColor: '#A0522D',
-                    backgroundColor: 'rgba(160, 82, 45, 0.1)',
-                    data: [],
-                    fill: true,
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: { display: true, text: 'Price (Local Currency)' }
-                    }
-                },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: (context) => `Price: ${context.raw.toFixed(2)}`
-                        }
-                    }
+            renderCVAChart(0);
+
+
+            // --- Specialists Interaction ---
+            const specialistDetailsEl = document.getElementById('specialist-details');
+            document.querySelectorAll('.specialist-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    const specialistKey = e.currentTarget.dataset.specialist;
+                    const specialist = specialists[specialistKey];
+                    specialistDetailsEl.innerHTML = `
+                        <h5 class="font-bold text-lg">${specialist.name} - Cost: ${specialist.cost}</h5>
+                        <p class="text-gray-700 mt-2">${specialist.description}</p>
+                    `;
+                });
+            });
+
+            // --- Market Chart ---
+            const marketCtx = document.getElementById('marketChart').getContext('2d');
+            let marketChart;
+            const basePrice = 50;
+            const pricePoints = Array.from({ length: 10 }, (_, i) => {
+                const supply = i + 1;
+                // Exponential decay formula for price
+                return Math.round(basePrice * Math.pow(0.85, i));
+            });
+
+            function renderMarketChart(currentSupply) {
+                if (marketChart) {
+                    marketChart.destroy();
                 }
-            }
-        };
-
-        priceChart = new Chart(ctx, config);
-
-        function updatePriceChart() {
-            const localS = parseInt(localSupplySlider.value);
-            const globalS = parseInt(globalSupplySlider.value);
-            localSupplyValue.textContent = `${localS} units`;
-            globalSupplyValue.textContent = `${globalS} units`;
-
-            const prices = [];
-            let p_base = 100;
-            let p_round_2 = 100;
-            const D_local = 100;
-            const D_global = 1000;
-            const alpha_local = 0.5;
-            const alpha_global = 0.2;
-            const delta = 0.1;
-
-            prices.push(p_base);
-
-            for (let i = 0; i < 5; i++) {
-                const S_local_round = (i === 0) ? localS : D_local;
-                const S_global_round = (i === 0) ? globalS : D_global;
-                
-                const M_trend = 1 + ((p_base - p_round_2) / p_base) * delta;
-                const F_local = 1 + alpha_local * ((D_local - S_local_round) / (D_local + S_local_round));
-                const F_global = 1 + alpha_global * ((D_global - S_global_round) / (D_global + S_global_round));
-                
-                const p_new = p_base * M_trend * F_local * F_global;
-                
-                prices.push(p_new);
-                p_round_2 = p_base;
-                p_base = p_new;
-            }
-
-            priceChart.data.datasets[0].data = prices;
-            priceChart.update();
-        }
-
-        localSupplySlider.addEventListener('input', updatePriceChart);
-        globalSupplySlider.addEventListener('input', updatePriceChart);
-        updatePriceChart();
-    }
-
-    function initExchangeSimulator() {
-        const ctx = document.getElementById('exchangeChart').getContext('2d');
-        const simulateBtn = document.getElementById('simulate-trade-btn');
-        const resetBtn = document.getElementById('reset-trade-btn');
-        const rateDisplay = document.getElementById('exchange-rate-display');
-
-        let foreignHoldings = { cred: 1000, ing: 1000 };
-
-        const config = {
-            type: 'bar',
-            data: {
-                labels: ['CRED held by non-SCS', 'ING held by non-ORC'],
-                datasets: [{
-                    label: 'Foreign Holdings',
-                    data: [foreignHoldings.cred, foreignHoldings.ing],
-                    backgroundColor: [zoneData.scs.color, zoneData.orc.color]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                indexAxis: 'y',
-                scales: {
-                    x: {
-                        title: { display: true, text: 'Total Currency Held' }
-                    }
-                },
-                plugins: {
-                    legend: { display: false }
-                }
-            }
-        };
-        
-        exchangeChart = new Chart(ctx, config);
-
-        function updateExchange() {
-            const rate = foreignHoldings.cred / foreignHoldings.ing;
-            rateDisplay.textContent = `${rate.toFixed(2)} CRED / ING`;
-            exchangeChart.data.datasets[0].data = [foreignHoldings.cred, foreignHoldings.ing];
-            exchangeChart.update();
-        }
-
-        simulateBtn.addEventListener('click', () => {
-            const rate = foreignHoldings.cred / foreignHoldings.ing;
-            const credCost = 200 * rate;
-            foreignHoldings.cred += credCost;
-            foreignHoldings.ing -= 200;
-            if (foreignHoldings.ing < 0) foreignHoldings.ing = 0;
-            updateExchange();
-        });
-
-        resetBtn.addEventListener('click', () => {
-            foreignHoldings = { cred: 1000, ing: 1000 };
-            updateExchange();
-        });
-
-        updateExchange();
-    }
-
-    function initScoringChart() {
-        const ctx = document.getElementById('scoringChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: scoringData.labels,
-                datasets: [{
-                    label: 'Max Points per Round',
-                    data: scoringData.data,
-                    backgroundColor: ['#4A5568', '#718096', '#A0AEC0', '#CBD5E0', '#E2E8F0', '#F7FAFC'],
-                    borderColor: '#F5F5DC',
-                    borderWidth: 5
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
+                marketChart = new Chart(marketCtx, {
+                    type: 'line',
+                    data: {
+                        labels: Array.from({ length: 10 }, (_, i) => `${i + 1}`),
+                        datasets: [{
+                            label: 'Market Price',
+                            data: pricePoints,
+                            borderColor: '#D97706',
+                            backgroundColor: '#FDE68A',
+                            fill: true,
+                            tension: 0.1
+                        }]
                     },
-                    tooltip: {
-                        callbacks: {
-                            label: (context) => `${context.label}: ${context.raw} points`
-                        }
-                    }
-                }
-            }
-        });
-    }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            title: {
+                                display: true,
+                                text: 'Price vs. Supply in the Rialto Market'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `Price: ${context.raw} units`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: { display: true, text: 'Price' }
+                            },
+                            x: {
+                                title: { display: true, text: 'Units in Market' }
+                            }
+                        },
+                        // Custom plugin to draw a vertical line at current supply
+                        plugins: [{
+                            id: 'supplyIndicator',
+                            afterDraw: chart => {
+                                const ctx = chart.ctx;
+                                const xAxis = chart.scales.x;
+                                const yAxis = chart.scales.y;
+                                const xPos = xAxis.getPixelForValue(currentSupply - 1);
 
-    initGalaxy();
-    initRoundFlow();
-    initPriceSimulator();
-    initExchangeSimulator();
-    initScoringChart();
-});
-</script>
+                                ctx.save();
+                                ctx.beginPath();
+                                ctx.moveTo(xPos, yAxis.top);
+                                ctx.lineTo(xPos, yAxis.bottom);
+                                ctx.lineWidth = 2;
+                                ctx.strokeStyle = 'rgba(220, 38, 38, 0.7)';
+                                ctx.stroke();
+                                ctx.restore();
+                            }
+                        }]
+                    }
+                });
+            }
+
+            const supplySlider = document.getElementById('supply-slider');
+            const supplyValue = document.getElementById('supply-value');
+            supplySlider.addEventListener('input', (e) => {
+                const supply = parseInt(e.target.value);
+                supplyValue.textContent = `${supply} unit(s)`;
+                renderMarketChart(supply);
+            });
+
+            renderMarketChart(1);
+            
+            // --- Smooth Scrolling & Active Nav Link ---
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.toggle('active', link.getAttribute('href').substring(1) === entry.target.id);
+                        });
+                    }
+                });
+            }, { rootMargin: "-50% 0px -50% 0px" });
+
+            sections.forEach(section => observer.observe(section));
+
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            // Mobile navigation
+            document.getElementById('mobile-nav').addEventListener('change', function(e) {
+                const targetId = e.target.value;
+                document.querySelector(targetId).scrollIntoView({ behavior: 'smooth' });
+            });
+
+        });
+    </script>
 </body>
 </html>
+
