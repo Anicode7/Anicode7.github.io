@@ -3,558 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Risk -n- Rialto: Interactive Economy Blueprint</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Warm Neutrals with Amber Accent -->
-    <!-- Application Structure Plan: A thematic, scrolling single-page application divided into the four core phases of the game: I. The Economic Engine, II. Pre-Journey Preparations, III. The Perilous Journey, and IV. The Rialto Market & Finale. This structure was chosen to guide the user through the game's narrative and mechanical progression logically. Navigation is handled by a sticky top bar that allows users to jump to any section. Key interactions include toggling between raw materials and crafted goods to see value changes, selecting specialists to view their effects, and simulating market supply changes to see dynamic price adjustments. This user flow mirrors the player's own journey, making the complex economic systems easy to understand step-by-step. -->
-    <!-- Visualization & Content Choices: 
-        - Economic Engine: Uses a dynamic bar chart (Chart.js) to compare the base value of raw materials vs. the "Crafting Value Add" (CVA) of intermediate goods. Goal: Compare. Interaction: User can select different recipes to update the chart, visually demonstrating the core risk/reward of crafting. Justification: A bar chart is the clearest way to show the value proposition of crafting.
-        - Specialists: Uses interactive cards (HTML/CSS/JS). Goal: Inform & Compare. Interaction: Clicking on a specialist's card highlights it and displays their unique abilities and cost. Justification: This provides a clean, organized way to compare the strategic options available during preparation.
-        - Threat Matrix: Uses a structured HTML table. Goal: Organize. Interaction: None, static informational display. Justification: A table is the most effective way to present this matrix of threats, consequences, and mitigations clearly.
-        - Rialto Market: Uses an interactive line chart (Chart.js) to simulate the dynamic pricing model. Goal: Change. Interaction: A slider or buttons allow the user to increase the supply of a product, which dynamically updates the chart to show the corresponding price drop. Justification: A line chart effectively visualizes the relationship between supply and price, making the core market mechanic tangible.
-        - Venetian Masterpieces: Uses an interactive diagram built with HTML/CSS. Goal: Organize & Show Relationships. Interaction: Hovering over a Masterpiece reveals the multiple, disparate components required from different game phases. Justification: This visually reinforces the "Ugli Orange" principle, showing why player negotiation is essential.
-    -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <meta name="description" content="Shyam Flour Mill - Premium Chakki Fresh Atta & Wheat Products in Fatehpur, Uttar Pradesh. Pure, Hygienic, Traditional Quality since 1984.">
+    <title>Shyam Flour Mill | Premium Chakki Atta | Fatehpur</title>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #FDFBF8;
-            color: #402E32;
+        :root {
+            --primary: #d4af37; /* Gold for wheat theme */
+            --secondary: #1a1a1a;
+            --accent: #f5f5f5;
+            --text: #eeeeee;
         }
-        .nav-link {
-            transition: color 0.3s, border-bottom-color 0.3s;
-        }
-        .nav-link.active {
-            color: #D97706;
-            border-bottom-color: #D97706;
-        }
-        .nav-link:hover {
-            color: #D97706;
-        }
-        .card {
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 350px;
-            max-height: 40vh;
-        }
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 400px;
-            }
-        }
-        .btn-primary {
-            background-color: #D97706;
-            color: #FFFFFF;
-            transition: background-color 0.3s;
-        }
-        .btn-primary:hover {
-            background-color: #B45309;
-        }
-        .btn-secondary {
-            background-color: #EFEBE9;
-            color: #402E32;
-            transition: background-color 0.3s;
-        }
-        .btn-secondary.active {
-            background-color: #D97706;
-            color: #FFFFFF;
-        }
-        .section-title {
-            border-bottom: 2px solid #D97706;
-            padding-bottom: 0.5rem;
-        }
+        body { margin:0; font-family: 'Poppins', sans-serif; background: var(--secondary); color: var(--text); transition: background 0.5s; }
+        .dark-mode { --secondary: #f0f0f0; --text: #1a1a1a; background: var(--secondary); color: var(--text); }
+        h1, h2, h3 { font-weight: 700; }
+        .container { max-width: 1200px; margin: auto; padding: 0 20px; }
+        header { position: fixed; width: 100%; z-index: 1000; background: rgba(26,26,26,0.8); backdrop-filter: blur(10px); transition: 0.3s; }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; }
+        .logo { font-size: 28px; color: var(--primary); }
+        .nav-links a { color: var(--text); margin: 0 20px; text-decoration: none; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--primary); }
+        #dark-toggle { background: none; border: none; color: var(--text); font-size: 24px; cursor: pointer; }
+        .hero { height: 100vh; background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://www.goldgrain.in/wp-content/uploads/2025/10/The-Power-of-Modern-Commercial-Flour-Mills.jpg') center/cover no-repeat; display: flex; align-items: center; text-align: center; }
+        .hero-content { max-width: 800px; margin: auto; }
+        .hero h1 { font-size: 60px; color: var(--primary); }
+        .hero p { font-size: 24px; }
+        .btn { background: var(--primary); color: #000; padding: 15px 30px; border: none; border-radius: 50px; cursor: pointer; transition: 0.3s; }
+        .btn:hover { transform: scale(1.05); }
+        section { padding: 100px 0; }
+        .glass-card { background: rgba(255,255,255,0.1); backdrop-filter: blur(15px); border-radius: 20px; padding: 40px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px,1fr)); gap: 30px; }
+        .product-card { text-align: center; }
+        .product-card img { width: 100%; border-radius: 15px; }
+        .stats { display: flex; justify-content: space-around; flex-wrap: wrap; }
+        .stat-item { text-align: center; }
+        .counter { font-size: 48px; color: var(--primary); }
+        .map { height: 400px; border-radius: 20px; overflow: hidden; }
+        footer { background: #000; padding: 50px 0; text-align: center; }
+        @media (max-width: 768px) { .nav-links { display: none; } .hero h1 { font-size: 40px; } }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
 </head>
-<body class="antialiased">
-
-    <!-- Header & Navigation -->
-    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
-        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-amber-700">Risk -n- Rialto</h1>
-            <div class="hidden md:flex space-x-8">
-                <a href="#engine" class="nav-link text-gray-600 border-b-2 border-transparent pb-1">Economic Engine</a>
-                <a href="#preparation" class="nav-link text-gray-600 border-b-2 border-transparent pb-1">Preparation</a>
-                <a href="#journey" class="nav-link text-gray-600 border-b-2 border-transparent pb-1">The Journey</a>
-                <a href="#market" class="nav-link text-gray-600 border-b-2 border-transparent pb-1">Rialto Market</a>
+<body>
+    <header>
+        <div class="container nav">
+            <div class="logo">Shyam Flour Mill</div>
+            <div class="nav-links">
+                <a href="#home">Home</a>
+                <a href="#about">About</a>
+                <a href="#products">Products</a>
+                <a href="#quality">Quality</a>
+                <a href="#contact">Contact</a>
             </div>
-            <div class="md:hidden">
-                <select id="mobile-nav" class="bg-white border border-gray-300 rounded-md p-2">
-                    <option value="#engine">Economic Engine</option>
-                    <option value="#preparation">Preparation</option>
-                    <option value="#journey">The Journey</option>
-                    <option value="#market">Rialto Market</option>
-                </select>
-            </div>
-        </nav>
+            <button id="dark-toggle"><i class="fas fa-moon"></i></button>
+        </div>
     </header>
 
-    <main class="container mx-auto px-6 py-12">
-
-        <!-- Introduction Section -->
-        <section id="intro" class="text-center mb-20">
-            <h2 class="text-4xl font-bold mb-4">An Interactive Blueprint of the Game Economy</h2>
-            <p class="max-w-3xl mx-auto text-lg text-gray-700">
-                This dashboard provides an interactive exploration of the core systems powering "Risk -n- Rialto". Navigate through the game's phases to understand the strategic decisions, economic principles, and risk management mechanics that define the player experience.
-            </p>
-        </section>
-
-        <!-- Section 1: The Engine of Commerce -->
-        <section id="engine" class="mb-20 scroll-mt-24">
-            <h3 class="text-3xl font-bold mb-6 section-title">I. The Engine of Commerce</h3>
-            <p class="text-gray-700 mb-8 max-w-4xl">
-                The foundation of the game's economy is the transformation of low-value, high-resilience **Raw Materials** into high-value, low-resilience **Intermediate Goods**. This creates the central risk-reward proposition. The chart below visualizes this "Crafting Value Add" (CVA) – the potential profit earned for taking the risk of crafting and transporting a finished good.
-            </p>
-            
-            <div class="bg-white p-6 rounded-lg shadow-lg">
-                <div class="flex flex-wrap justify-center gap-2 mb-6">
-                    <button class="recipe-btn btn-secondary active px-4 py-2 rounded-md text-sm" data-recipe="0">Recipe A: Dyed Silk</button>
-                    <button class="recipe-btn btn-secondary px-4 py-2 rounded-md text-sm" data-recipe="1">Recipe B: Carved Jade</button>
-                    <button class="recipe-btn btn-secondary px-4 py-2 rounded-md text-sm" data-recipe="2">Recipe C: Spiced Wine</button>
-                    <button class="recipe-btn btn-secondary px-4 py-2 rounded-md text-sm" data-recipe="3">Recipe D: Illustrated Scroll</button>
-                </div>
-                <div id="cva-details" class="text-center mb-4 p-4 bg-amber-50 rounded-md">
-                    <!-- Details will be populated by JS -->
-                </div>
-                <div class="chart-container">
-                    <canvas id="cvaChart"></canvas>
-                </div>
-            </div>
-        </section>
-
-        <!-- Section 2: Pre-Journey Preparations -->
-        <section id="preparation" class="mb-20 scroll-mt-24">
-            <h3 class="text-3xl font-bold mb-6 section-title">II. Pre-Journey Preparations</h3>
-            <p class="text-gray-700 mb-8 max-w-4xl">
-                Success is seeded in foresight. Before the journey begins, players must make critical investments. Beyond acquiring a portfolio of resources, players can hire **Specialists** to mitigate the specific dangers of the road ahead. Each specialist provides a unique and powerful advantage, but their cost demands a significant portion of a player's starting capital.
-            </p>
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <div class="specialist-card card bg-white p-6 rounded-lg shadow-lg text-center" data-specialist="guide">
-                    <div class="text-4xl mb-4">🗺️</div>
-                    <h4 class="text-xl font-semibold mb-2">The Guide</h4>
-                    <p class="text-gray-600 text-sm">Expert in navigating treacherous landscapes. Mitigates terrain-based calamities like Sandstorms or Rockslides.</p>
-                </div>
-                <div class="specialist-card card bg-white p-6 rounded-lg shadow-lg text-center" data-specialist="guard">
-                    <div class="text-4xl mb-4">🛡️</div>
-                    <h4 class="text-xl font-semibold mb-2">The Guard</h4>
-                    <p class="text-gray-600 text-sm">Seasoned protector of the caravan. Provides a significant advantage during bandit-themed puzzles.</p>
-                </div>
-                <div class="specialist-card card bg-white p-6 rounded-lg shadow-lg text-center" data-specialist="scholar">
-                    <div class="text-4xl mb-4">📜</div>
-                    <h4 class="text-xl font-semibold mb-2">The Scholar</h4>
-                    <p class="text-gray-600 text-sm">Master of lore and logic. Gains an advantage on any logic-based or linguistic puzzles.</p>
-                </div>
-                <div class="specialist-card card bg-white p-6 rounded-lg shadow-lg text-center" data-specialist="physician">
-                    <div class="text-4xl mb-4">⚕️</div>
-                    <h4 class="text-xl font-semibold mb-2">The Physician</h4>
-                    <p class="text-gray-600 text-sm">Expert in medicine. Can prevent the loss of other specialists or protect cargo from disease.</p>
-                </div>
-            </div>
-             <div id="specialist-details" class="mt-8 p-6 bg-amber-50 rounded-lg text-center min-h-[80px] flex items-center justify-center">
-                <p class="text-gray-700">Click on a specialist to learn more about their abilities and cost.</p>
-            </div>
-        </section>
-
-        <!-- Section 3: The Perilous Journey -->
-        <section id="journey" class="mb-20 scroll-mt-24">
-            <h3 class="text-3xl font-bold mb-6 section-title">III. The Perilous Journey</h3>
-            <p class="text-gray-700 mb-8 max-w-4xl">
-                The journey is an unpredictable gauntlet of challenges. A player's success or failure in overcoming these obstacles has direct and lasting economic consequences. The **Threat Matrix** below outlines the types of calamities a caravan might face, the potential losses, and which specialists are best equipped to handle them. Failure often results in goods becoming "Damaged," halving their value until repaired at a costly Caravanserai.
-            </p>
-            <div class="bg-white p-2 rounded-lg shadow-lg overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead class="bg-amber-100">
-                        <tr>
-                            <th class="p-4 font-semibold">Terrain Type</th>
-                            <th class="p-4 font-semibold">Calamity / Puzzle Theme</th>
-                            <th class="p-4 font-semibold">Potential Loss (on Failure)</th>
-                            <th class="p-4 font-semibold">Mitigated By</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        <tr class="hover:bg-gray-50">
-                            <td class="p-4">Desert</td>
-                            <td class="p-4">Sandstorm, Lost Oasis</td>
-                            <td class="p-4">Damage to Good; Loss of money</td>
-                            <td class="p-4 font-medium text-amber-800">Guide</td>
-                        </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="p-4">Mountains</td>
-                            <td class="p-4">Blizzard, Rockslide</td>
-                            <td class="p-4">Damage to Good; Caravan delayed</td>
-                            <td class="p-4 font-medium text-amber-800">Guide</td>
-                        </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="p-4">Forest / Hills</td>
-                            <td class="p-4">Bandit Ambush (Logic Puzzle)</td>
-                            <td class="p-4">Loss of money or Raw Material</td>
-                            <td class="p-4 font-medium text-amber-800">Guard</td>
-                        </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="p-4">Steppe</td>
-                            <td class="p-4">Nomadic Raiders (Riddle)</td>
-                            <td class="p-4">Loss of money or Raw Material</td>
-                            <td class="p-4 font-medium text-amber-800">Guard, Scholar</td>
-                        </tr>
-                         <tr class="hover:bg-gray-50">
-                            <td class="p-4">Plague Territory</td>
-                            <td class="p-4">Disease Outbreak</td>
-                            <td class="p-4">Damage to Good; Loss of a Specialist</td>
-                            <td class="p-4 font-medium text-amber-800">Physician</td>
-                        </tr>
-                        <tr class="hover:bg-gray-50">
-                            <td class="p-4">River Crossing</td>
-                            <td class="p-4">Linguistic Problem (Riddle)</td>
-                            <td class="p-4">Caravan delayed; Loss of money</td>
-                            <td class="p-4 font-medium text-amber-800">Scholar</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Section 4: The Rialto Market -->
-        <section id="market" class="mb-20 scroll-mt-24">
-            <h3 class="text-3xl font-bold mb-6 section-title">IV. The Rialto Market & Grand Finale</h3>
-            <p class="text-gray-700 mb-8 max-w-4xl">
-                The game culminates in Venice's bustling Rialto Market. Here, the core economic principle comes to life: **the more of a specific good supplied to the market, the lower its price becomes.** This dynamic pricing model creates a tense, player-driven environment. Use the slider below to simulate how increasing the supply of a product affects its market value.
-            </p>
-            <div class="bg-white p-6 rounded-lg shadow-lg mb-12">
-                <div class="mb-6">
-                    <label for="supply-slider" class="block font-medium mb-2">Simulate Market Supply for "Dyed Silk": <span id="supply-value" class="font-bold text-amber-700">1</span> unit(s)</label>
-                    <input type="range" id="supply-slider" min="1" max="10" value="1" class="w-full">
-                </div>
-                <div class="chart-container">
-                    <canvas id="marketChart"></canvas>
-                </div>
-            </div>
-
-            <h4 class="text-2xl font-bold mb-4">The Grand Finale: Crafting Venetian Masterpieces</h4>
-            <p class="text-gray-700 mb-8 max-w-4xl">
-                The ultimate path to victory lies in crafting unique Venetian Masterpieces. Their recipes are designed to be impossible for a single player to complete alone, forcing negotiation and trade. This "Ugli Orange" design principle ensures the endgame is a climactic social and economic showdown. Hover over a masterpiece below to see its complex requirements.
-            </p>
-
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="card bg-white p-6 rounded-lg shadow-lg relative overflow-hidden group">
-                    <h5 class="text-xl font-semibold text-center">Murano Glass Mirror</h5>
-                    <div class="absolute inset-0 bg-amber-800/90 text-white p-6 flex flex-col justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <h6 class="font-bold mb-2">Requires:</h6>
-                        <ul class="text-sm list-disc list-inside text-left">
-                            <li><span class="font-semibold">Intermediate Good:</span> Polished Metalware</li>
-                            <li><span class="font-semibold">Journey Resource:</span> Quartz Sand</li>
-                            <li><span class="font-semibold">Venetian Component:</span> Glassmakers' Formula</li>
-                        </ul>
-                        <div class="mt-4 text-lg font-bold">Value: 1500</div>
-                    </div>
-                </div>
-                 <div class="card bg-white p-6 rounded-lg shadow-lg relative overflow-hidden group">
-                    <h5 class="text-xl font-semibold text-center">Damask Velvet Gown</h5>
-                    <div class="absolute inset-0 bg-amber-800/90 text-white p-6 flex flex-col justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <h6 class="font-bold mb-2">Requires:</h6>
-                        <ul class="text-sm list-disc list-inside text-left">
-                            <li><span class="font-semibold">Intermediate Good:</span> Dyed Silk (x2)</li>
-                            <li><span class="font-semibold">Journey Resource:</span> Rare Dyes</li>
-                            <li><span class="font-semibold">Venetian Component:</span> Weavers' Pattern</li>
-                        </ul>
-                        <div class="mt-4 text-lg font-bold">Value: 1300</div>
-                    </div>
-                </div>
-                 <div class="card bg-white p-6 rounded-lg shadow-lg relative overflow-hidden group">
-                    <h5 class="text-xl font-semibold text-center">Gilt Leather Tome</h5>
-                    <div class="absolute inset-0 bg-amber-800/90 text-white p-6 flex flex-col justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <h6 class="font-bold mb-2">Requires:</h6>
-                        <ul class="text-sm list-disc list-inside text-left">
-                            <li><span class="font-semibold">Intermediate Good:</span> Bound Paper</li>
-                            <li><span class="font-semibold">Journey Resource:</span> Gold Dust</li>
-                            <li><span class="font-semibold">Venetian Component:</span> Bookbinding Secret</li>
-                        </ul>
-                        <div class="mt-4 text-lg font-bold">Value: 1100</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-    </main>
-    
-    <footer class="bg-gray-800 text-white py-6">
-        <div class="container mx-auto px-6 text-center">
-            <p>&copy; 2025 Risk -n- Rialto Game Design. All systems conceptual.</p>
+    <section id="home" class="hero">
+        <div class="container hero-content" data-aos="fade-up">
+            <h1>Pure Chakki Fresh Atta from the Heart of Fatehpur</h1>
+            <p>Traditional Grinding | Modern Hygiene | Premium Quality Wheat Products Since 1984</p>
+            <button class="btn" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Get in Touch</button>
         </div>
+    </section>
+
+    <section id="about">
+        <div class="container glass-card" data-aos="fade-right">
+            <h2>About Shyam Flour Mill</h2>
+            <p>Established in 1984, Shyam Flour Mills Pvt. Ltd. is a trusted name in Fatehpur, Uttar Pradesh. We specialize in roller-milled premium wheat flour (chakki atta), maida, suji, and bran. Using state-of-the-art machinery while preserving traditional chakki freshness, we deliver hygienic, nutritious products to families and businesses across the region.</p>
+            <p>Location: GT Road, Gopal Nagar, Fatehpur - 212601, Uttar Pradesh</p>
+        </div>
+    </section>
+
+    <section id="products" style="background: linear-gradient(to bottom, #1a1a1a, #000);">
+        <div class="container">
+            <h2 style="text-align:center; color:var(--primary);" data-aos="fade-up">Our Premium Products</h2>
+            <div class="products-grid">
+                <div class="product-card glass-card" data-aos="zoom-in">
+                    <img src="https://m.media-amazon.com/images/I/01UwfHrld%2BL._TSa%7Csize%3A1910%2C1000%7Cformat%3A%28A%2Cf%2Cb%2Cd%2Cpi%2Cpl%2Co%29%7Cb-src%3A61Cd2rJZgRL.png%7Cb-pos%3A0%2C0%2C1910%2C1000%7Cpi-src%3A81RqIlqh5HL.jpg%7Cpi-pos%3A1000%2C100%2C840%2C840.json" alt="Chakki Atta">
+                    <h3>Chakki Fresh Atta</h3>
+                    <p>100% Whole Wheat | Stone-Ground Freshness</p>
+                </div>
+                <div class="product-card glass-card" data-aos="zoom-in" data-aos-delay="200">
+                    <img src="https://i0.wp.com/1.bp.blogspot.com/-a5nAAODqUGs/X7M64twTczI/AAAAAAAHXPU/yjYO8revVP8XJSOGuVS8Op1QOQIBCFLoACLcBGAsYHQ/s1600/kamya-Atta-Pouch-0.png?ssl=1" alt="Premium Atta Packaging">
+                    <h3>Premium Whole Wheat Flour</h3>
+                    <p>High Protein | Perfect for Rotis & Parathas</p>
+                </div>
+                <div class="product-card glass-card" data-aos="zoom-in" data-aos-delay="400">
+                    <img src="https://5.imimg.com/data5/SELLER/Default/2021/12/XD/VB/HX/4281713/india-gate-chakki-atta.jpeg" alt="Maida & Suji">
+                    <h3>Maida, Suji & Bran</h3>
+                    <p>Fine Quality for Baking & Snacks</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="quality">
+        <div class="container glass-card" data-aos="fade-left">
+            <h2>Why Choose Us? Our Commitment to Quality</h2>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="counter" data-target="40">0</div>+ Years Experience
+                </div>
+                <div class="stat-item">
+                    <div class="counter" data-target="100">0</div>% Pure Wheat
+                </div>
+                <div class="stat-item">
+                    <div class="counter" data-target="5000">0</div>+ Happy Customers
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact">
+        <div class="container">
+            <h2 style="text-align:center; color:var(--primary);" data-aos="fade-up">Visit Us</h2>
+            <div class="map" data-aos="fade-up">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3590.123456789!2d80.812345!3d25.927890!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjXCsDU1JzQwLjQiTiA4MMKwNDgnNDQuNCJF!5e0!3m2!1sen!2sin!4v1734650000000" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+            <div class="glass-card" style="margin-top:50px;" data-aos="fade-up">
+                <h3>Contact Form</h3>
+                <form>
+                    <input type="text" placeholder="Name" required style="width:100%; padding:15px; margin:10px 0; border-radius:10px; border:none;">
+                    <input type="email" placeholder="Email" required style="width:100%; padding:15px; margin:10px 0; border-radius:10px; border:none;">
+                    <textarea placeholder="Message" rows="5" required style="width:100%; padding:15px; margin:10px 0; border-radius:10px; border:none;"></textarea>
+                    <button type="submit" class="btn">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 Shyam Flour Mill, Fatehpur. All Rights Reserved. | Email: info@shyamflourmill.com | Phone: +91-XXXX-XXXXXX</p>
     </footer>
 
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // --- DATA ---
-            const rawMaterials = {
-                silk: { name: 'Raw Silk', value: 4 },
-                spices: { name: 'Spices', value: 3 },
-                jade: { name: 'Jade', value: 5 },
-                paper: { name: 'Paper & Pigments', value: 2 },
-                metals: { name: 'Precious Metals', value: 6 }
+        AOS.init({ duration: 1200 });
+        document.getElementById('dark-toggle').addEventListener('click', () => document.body.classList.toggle('dark-mode'));
+
+        // Counter animation
+        const counters = document.querySelectorAll('.counter');
+        const speed = 200;
+        counters.forEach(counter => {
+            const updateCount = () => {
+                const target = +counter.getAttribute('data-target');
+                const count = +counter.innerText;
+                const inc = target / speed;
+                if(count < target) {
+                    counter.innerText = Math.ceil(count + inc);
+                    setTimeout(updateCount, 20);
+                } else { counter.innerText = target; }
             };
-
-            const recipes = [
-                {
-                    name: "Recipe A: Dyed Silk",
-                    components: { silk: 3, spices: 5, paper: 2 },
-                    salePrice: 50
-                },
-                {
-                    name: "Recipe B: Carved Jade",
-                    components: { jade: 4, metals: 2 },
-                    salePrice: 60
-                },
-                {
-                    name: "Recipe C: Spiced Wine",
-                    components: { spices: 10, paper: 1 },
-                    salePrice: 45
-                },
-                {
-                    name: "Recipe D: Illustrated Scroll",
-                    components: { paper: 8, silk: 2, metals: 1 },
-                    salePrice: 55
-                }
-            ];
-            
-            const specialists = {
-                guide: { name: "The Guide", cost: 60, description: "Allows you to ignore or reduce the penalty of one terrain-based Calamity. Essential for safely traversing dangerous mountains or deserts." },
-                guard: { name: "The Guard", cost: 50, description: "Provides a significant advantage during bandit-themed puzzles, potentially offering a free hint, a re-attempt, or reduced losses on failure." },
-                scholar: { name: "The Scholar", cost: 40, description: "Grants an advantage on any logic-based or linguistic puzzle, making it easier to overcome intellectual challenges and gain their rewards." },
-                physician: { name: "The Physician", cost: 45, description: "Can prevent the loss of another Specialist or protect cargo from being damaged during a disease-related Calamity, acting as crucial insurance for your expedition." }
-            };
-
-            // --- CVA Chart ---
-            const cvaCtx = document.getElementById('cvaChart').getContext('2d');
-            let cvaChart;
-
-            function calculateCVA(recipe) {
-                const cost = Object.entries(recipe.components).reduce((acc, [key, quantity]) => {
-                    return acc + (rawMaterials[key].value * quantity);
-                }, 0);
-                const cva = recipe.salePrice - cost;
-                return { cost, cva, salePrice: recipe.salePrice };
-            }
-
-            function updateCVADetails(recipeIndex) {
-                const recipe = recipes[recipeIndex];
-                const { cost, cva } = calculateCVA(recipe);
-                const detailsEl = document.getElementById('cva-details');
-                const componentStrings = Object.entries(recipe.components).map(([key, quantity]) => {
-                    return `${quantity} ${rawMaterials[key].name}`;
-                });
-                detailsEl.innerHTML = `
-                    <p class="font-semibold">${recipe.name}</p>
-                    <p class="text-sm text-gray-600">Requires: ${componentStrings.join(', ')}</p>
-                    <p class="text-sm text-gray-600">Total Raw Material Cost: <span class="font-bold">${cost}</span> | Sale Price: <span class="font-bold">${recipe.salePrice}</span> | CVA: <span class="font-bold text-green-600">${cva}</span></p>
-                `;
-            }
-
-            function renderCVAChart(recipeIndex) {
-                const recipe = recipes[recipeIndex];
-                const { cost, cva } = calculateCVA(recipe);
-
-                if (cvaChart) {
-                    cvaChart.destroy();
-                }
-
-                cvaChart = new Chart(cvaCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Raw Material Cost', 'Crafting Value Add (Profit)'],
-                        datasets: [{
-                            label: recipe.name,
-                            data: [cost, cva],
-                            backgroundColor: ['#FBBF24', '#16A34A'],
-                            borderColor: ['#F59E0B', '#15803D'],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        indexAxis: 'y',
-                        plugins: {
-                            legend: { display: false },
-                            title: {
-                                display: true,
-                                text: 'Value Breakdown: Cost vs. Profit'
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return `${context.dataset.label}: ${context.raw} units`;
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            x: {
-                                stacked: true,
-                                title: { display: true, text: 'Monetary Value' }
-                            },
-                            y: {
-                                stacked: true
-                            }
-                        }
-                    }
-                });
-                updateCVADetails(recipeIndex);
-            }
-
-            document.querySelectorAll('.recipe-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    document.querySelectorAll('.recipe-btn').forEach(b => b.classList.remove('active'));
-                    e.target.classList.add('active');
-                    renderCVAChart(parseInt(e.target.dataset.recipe));
-                });
-            });
-
-            renderCVAChart(0);
-
-
-            // --- Specialists Interaction ---
-            const specialistDetailsEl = document.getElementById('specialist-details');
-            document.querySelectorAll('.specialist-card').forEach(card => {
-                card.addEventListener('click', (e) => {
-                    const specialistKey = e.currentTarget.dataset.specialist;
-                    const specialist = specialists[specialistKey];
-                    specialistDetailsEl.innerHTML = `
-                        <h5 class="font-bold text-lg">${specialist.name} - Cost: ${specialist.cost}</h5>
-                        <p class="text-gray-700 mt-2">${specialist.description}</p>
-                    `;
-                });
-            });
-
-            // --- Market Chart ---
-            const marketCtx = document.getElementById('marketChart').getContext('2d');
-            let marketChart;
-            const basePrice = 50;
-            const pricePoints = Array.from({ length: 10 }, (_, i) => {
-                const supply = i + 1;
-                // Exponential decay formula for price
-                return Math.round(basePrice * Math.pow(0.85, i));
-            });
-
-            function renderMarketChart(currentSupply) {
-                if (marketChart) {
-                    marketChart.destroy();
-                }
-                marketChart = new Chart(marketCtx, {
-                    type: 'line',
-                    data: {
-                        labels: Array.from({ length: 10 }, (_, i) => `${i + 1}`),
-                        datasets: [{
-                            label: 'Market Price',
-                            data: pricePoints,
-                            borderColor: '#D97706',
-                            backgroundColor: '#FDE68A',
-                            fill: true,
-                            tension: 0.1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            title: {
-                                display: true,
-                                text: 'Price vs. Supply in the Rialto Market'
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return `Price: ${context.raw} units`;
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: { display: true, text: 'Price' }
-                            },
-                            x: {
-                                title: { display: true, text: 'Units in Market' }
-                            }
-                        },
-                        // Custom plugin to draw a vertical line at current supply
-                        plugins: [{
-                            id: 'supplyIndicator',
-                            afterDraw: chart => {
-                                const ctx = chart.ctx;
-                                const xAxis = chart.scales.x;
-                                const yAxis = chart.scales.y;
-                                const xPos = xAxis.getPixelForValue(currentSupply - 1);
-
-                                ctx.save();
-                                ctx.beginPath();
-                                ctx.moveTo(xPos, yAxis.top);
-                                ctx.lineTo(xPos, yAxis.bottom);
-                                ctx.lineWidth = 2;
-                                ctx.strokeStyle = 'rgba(220, 38, 38, 0.7)';
-                                ctx.stroke();
-                                ctx.restore();
-                            }
-                        }]
-                    }
-                });
-            }
-
-            const supplySlider = document.getElementById('supply-slider');
-            const supplyValue = document.getElementById('supply-value');
-            supplySlider.addEventListener('input', (e) => {
-                const supply = parseInt(e.target.value);
-                supplyValue.textContent = `${supply} unit(s)`;
-                renderMarketChart(supply);
-            });
-
-            renderMarketChart(1);
-            
-            // --- Smooth Scrolling & Active Nav Link ---
-            const sections = document.querySelectorAll('section');
-            const navLinks = document.querySelectorAll('.nav-link');
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        navLinks.forEach(link => {
-                            link.classList.toggle('active', link.getAttribute('href').substring(1) === entry.target.id);
-                        });
-                    }
-                });
-            }, { rootMargin: "-50% 0px -50% 0px" });
-
-            sections.forEach(section => observer.observe(section));
-
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    document.querySelector(this.getAttribute('href')).scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                });
-            });
-
-            // Mobile navigation
-            document.getElementById('mobile-nav').addEventListener('change', function(e) {
-                const targetId = e.target.value;
-                document.querySelector(targetId).scrollIntoView({ behavior: 'smooth' });
-            });
-
+            updateCount();
         });
     </script>
 </body>
 </html>
-
